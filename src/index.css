@@ -18,11 +18,11 @@
   }
 
   h1 {
-    @apply text-3xl font-semibold tracking-tight;
+    @apply text-4xl leading-tight font-semibold tracking-tight sm:text-5xl;
   }
 
   h2 {
-    @apply text-xl font-semibold;
+    @apply text-2xl font-semibold tracking-tight;
   }
 
   p {
@@ -33,6 +33,15 @@
     text-underline-offset: 0.25em;
   }
 
+  h1,
+  h2,
+  h3,
+  p,
+  a,
+  li {
+    overflow-wrap: anywhere;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-neutral-100);
     outline-offset: 4px;
@@ -40,7 +49,27 @@
 }
 
 @layer components {
-  .page-container {
-    @apply mx-auto w-full max-w-5xl px-5 sm:px-8;
+  .nav-link {
+    @apply inline-flex min-h-11 items-center text-sm text-neutral-300 hover:text-white aria-[current=page]:text-amber-300 aria-[current=page]:underline;
+  }
+
+  .eyebrow {
+    @apply text-xs font-medium tracking-widest text-neutral-400 uppercase;
+  }
+
+  .text-link {
+    @apply inline-flex min-h-11 items-center gap-2 text-sm font-medium text-amber-300 hover:underline;
+  }
+
+  .button-primary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-amber-300 px-5 py-3 text-sm font-semibold text-neutral-950 hover:bg-amber-200;
+  }
+
+  .button-secondary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-neutral-700 px-5 py-3 text-sm font-medium text-neutral-100 hover:bg-neutral-800;
+  }
+
+  .tag {
+    @apply rounded-md border border-neutral-700 px-2.5 py-1 text-xs text-neutral-300;
   }
 }
