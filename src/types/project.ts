@@ -7,4 +7,5 @@ export interface Project {
   repositoryUrl?: string
   demoUrl?: string
   featured: boolean
+  placeholder?: boolean
 }
