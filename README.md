@@ -1,6 +1,6 @@
 # Portfolio foundation
 
-A static frontend foundation. Pages contain routing placeholders; portfolio content and project data are intentionally empty.
+A static portfolio skeleton with a shared layout, responsive navigation, a homepage, project collection and detail pages, and an about page. Personal content is intentionally neutral, and three clearly labeled placeholder projects demonstrate the data flow.
 
 ## Stack
 
@@ -31,10 +31,10 @@ Open the local URL printed by Vite.
 
 ```text
 src/
-  components/   Shared navigation
-  layouts/      Header, navigation, main outlet, and footer
+  components/   Header, Footer, Navigation, Container, Section, and ProjectGrid
+  layouts/      Shared page shell, main outlet, and route focus management
   pages/        Home, Projects, ProjectDetails, About, and NotFound
-  data/         Empty typed project collection
+  data/         Typed project collection and derived featured projects
   types/        Project model
   App.tsx       Route definitions
   main.tsx      React entry point and BrowserRouter
@@ -47,9 +47,11 @@ Add `src/assets/` or `src/lib/` when actual assets or shared utilities are neede
 
 ## Routing and project data
 
-`BrowserRouter` uses normal URLs: `/`, `/projects`, `/projects/:slug`, and `/about`. Unmatched paths render `NotFound` within the shared layout. Navigation uses `NavLink` with an active state, and the layout includes a keyboard skip link and visible focus styles.
+`BrowserRouter` uses normal URLs: `/`, `/projects`, `/projects/:slug`, and `/about`. Unmatched paths render `NotFound` within the shared layout. Navigation uses `NavLink` with an active state. The layout includes a keyboard skip link and visible focus styles; route changes reset scrolling and move focus to the main content. Navigation remains visible on small screens and wraps when needed.
 
-Add future projects to `src/data/projects.ts`, using the `Project` interface in `src/types/project.ts`. Give each project a unique, URL-friendly slug. The project list links to each slug, and `ProjectDetails` finds the matching entry with `useParams`. Missing slugs show a clear empty state and a link back to projects. Repository and demo URLs are optional; no sample projects or personal information are included.
+Replace the entries in `src/data/projects.ts`, using the `Project` interface in `src/types/project.ts`. Give each project a unique, URL-friendly slug. Set `featured: true` to show it on the homepage, and remove `placeholder: true` when real content is ready. The homepage and collection use the same project cards; detail pages resolve the same data by slug. An empty collection and unknown slugs both have helpful fallback states.
+
+Each project supports a name, summary, overview, technology list, and optional repository and demo URLs. Only supplied URLs render as links; use full trusted `https://` URLs. Placeholder entries have no invented technologies or external links. Personal introduction, biography, skills, and contact placeholders live in `src/pages/Home.tsx` and `src/pages/About.tsx`.
 
 ## Production and GitHub Pages
 
