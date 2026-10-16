@@ -1,9 +1,13 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router'
 
 export default function NotFound() {
+  useEffect(() => {
+    document.title = 'Page not found | Portfolio'
+  }, [])
+
   return (
     <div className="space-y-5 py-8">
-      <title>Page not found | Portfolio</title>
       <p className="eyebrow">404</p>
       <h1>Page not found</h1>
       <p>The requested page does not exist.</p>
