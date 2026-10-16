@@ -1,6 +1,6 @@
 # Portfolio foundation
 
-A static portfolio skeleton with a shared layout, responsive navigation, a homepage, project collection and detail pages, and an about page. Personal content is intentionally neutral, and three clearly labeled placeholder projects demonstrate the data flow.
+A minimal software engineering portfolio with a shared layout, responsive navigation, a homepage, a project index, and dedicated project pages for WoWiki, TaskForge, and Flagbit. The project pages provide introductory metadata and empty content regions for detailed case studies. A resume page provides an empty content region for future resume content.
 
 ## Stack
 
@@ -32,13 +32,14 @@ Open the local URL printed by Vite.
 ```text
 src/
   components/   Header, Footer, Navigation, Container, Section, and ProjectGrid
-  layouts/      Shared page shell, main outlet, and route focus management
-  pages/        Home, Projects, ProjectDetails, About, and NotFound
+  layouts/      App shell, project detail shell, and route focus management
+  pages/        Home, Projects, ProjectDetails, Resume, About, and NotFound
+    projects/   Dedicated WoWiki, TaskForge, and Flagbit pages
   data/         Typed project collection and derived featured projects
   types/        Project model
   App.tsx       Route definitions
   main.tsx      React entry point and BrowserRouter
-  index.css     Tailwind import and neutral dark global styles
+  index.css     Tailwind import and dark global styles
 scripts/        Build-time GitHub Pages fallback generation
 .github/workflows/deploy.yml
 ```
@@ -47,11 +48,11 @@ Add `src/assets/` or `src/lib/` when actual assets or shared utilities are neede
 
 ## Routing and project data
 
-`BrowserRouter` uses normal URLs: `/`, `/projects`, `/projects/:slug`, and `/about`. Unmatched paths render `NotFound` within the shared layout. Navigation uses `NavLink` with an active state. The layout includes a keyboard skip link and visible focus styles; route changes reset scrolling and move focus to the main content. Navigation remains visible on small screens and wraps when needed.
+`BrowserRouter` uses normal URLs: `/`, `/projects`, `/projects/wowiki`, `/projects/taskforge`, `/projects/flagbit`, and `/resume`. The existing `/about` route remains accessible directly. Additional project slugs resolve through `/projects/:slug`, with a project-specific fallback for unknown slugs. Other unmatched paths render `NotFound` within the shared layout. Navigation uses `NavLink` with an active state and compact icon-over-label links beneath the monogram in a borderless desktop sidebar. The layout includes a keyboard skip link and visible focus styles; route changes reset scrolling and move focus to the main content. Navigation remains visible on small screens and wraps when needed.
 
-Replace the entries in `src/data/projects.ts`, using the `Project` interface in `src/types/project.ts`. Give each project a unique, URL-friendly slug. Set `featured: true` to show it on the homepage, and remove `placeholder: true` when real content is ready. The homepage and collection use the same project cards; detail pages resolve the same data by slug. An empty collection and unknown slugs both have helpful fallback states.
+Project listing metadata is centralized in `src/data/projects.ts`, using the `Project` interface in `src/types/project.ts`. The homepage and project collection use the same project cards; `featured: true` controls homepage inclusion. The dedicated pages in `src/pages/projects/` define their own introductory content and use `ProjectLayout` with an empty content region for future case studies. Keep their names, categories, and summaries consistent with the listing data. Entries without a dedicated route use `ProjectDetails`, which renders their metadata and description from the data collection.
 
-Each project supports a name, summary, overview, technology list, and optional repository and demo URLs. Only supplied URLs render as links; use full trusted `https://` URLs. Placeholder entries have no invented technologies or external links. Personal introduction, biography, skills, and contact placeholders live in `src/pages/Home.tsx` and `src/pages/About.tsx`.
+The project detail shell supports optional category metadata, summaries, technology tags, repository URLs, and live URLs. Only supplied URLs render as links; use full trusted `https://` URLs. Add case-study content as children of `ProjectLayout` and resume content in `src/pages/Resume.tsx` without changing the shared page structure.
 
 ## Production and GitHub Pages
 
