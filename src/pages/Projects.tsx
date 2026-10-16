@@ -1,17 +1,21 @@
+import { useEffect } from 'react'
 import ProjectGrid from '../components/ProjectGrid'
 import Section from '../components/Section'
 import { projects } from '../data/projects'
 
 export default function Projects() {
+  useEffect(() => {
+    document.title = 'Projects | Portfolio'
+  }, [])
+
   return (
     <div className="space-y-12">
-      <title>Projects | Portfolio</title>
       <header className="space-y-4">
-        <p className="eyebrow">The work</p>
+        <p className="eyebrow">Selected work</p>
         <h1>Projects</h1>
-        <p>
-          A collection of development work, experiments, and ideas. The entries below are placeholders for future case
-          studies.
+        <p className="text-lg leading-8 text-[var(--color-text-secondary)]">
+          A concise collection of product and platform work centered on software systems, developer workflows, and
+          thoughtful execution.
         </p>
       </header>
       <Section
