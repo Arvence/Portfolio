@@ -18,20 +18,29 @@ export default function AppLayout() {
   }, [pathname])
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-[var(--color-background)] text-[var(--color-text-primary)] lg:flex-row">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-10 focus:bg-neutral-900 focus:px-4 focus:py-2"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-[var(--color-surface)] focus:px-4 focus:py-2 focus:text-[var(--color-text-primary)]"
       >
         Skip to main content
       </a>
+
       <Header />
-      <main ref={mainRef} id="main-content" tabIndex={-1} className="flex-1 py-12 focus:outline-none sm:py-16">
-        <Container>
-          <Outlet />
-        </Container>
-      </main>
-      <Footer />
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <main
+          ref={mainRef}
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 py-10 focus:outline-none sm:py-12 lg:py-16"
+        >
+          <Container className={pathname === '/' ? 'max-w-[1600px]' : ''}>
+            <Outlet />
+          </Container>
+        </main>
+        <Footer />
+      </div>
     </div>
   )
 }
