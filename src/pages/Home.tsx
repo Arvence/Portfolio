@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import HomeAbout from '../components/HomeAbout'
 import ProjectGrid from '../components/ProjectGrid'
 import RotatingRole from '../components/RotatingRole'
 import { featuredProjects } from '../data/projects'
@@ -24,6 +25,8 @@ export default function Home() {
           </p>
         </div>
       </section>
+
+      <HomeAbout />
 
       <section aria-label="Projects" className="pb-10 sm:pb-12 lg:pb-16">
         <ProjectGrid projects={featuredProjects} />
