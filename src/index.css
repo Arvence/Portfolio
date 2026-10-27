@@ -111,6 +111,78 @@ html {
 }
 
 @layer components {
+  .tech-marquee {
+    --marquee-fade: clamp(1rem, 4vw, 3rem);
+    container-type: inline-size;
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 var(--marquee-fade),
+      #000 calc(100% - var(--marquee-fade)),
+      transparent
+    );
+  }
+
+  .tech-marquee-group {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-around;
+    gap: 1rem;
+    min-width: 100%;
+    padding-right: 1rem;
+    animation: tech-marquee-scroll var(--marquee-duration) linear infinite;
+    animation-direction: var(--marquee-direction);
+  }
+
+  .tech-marquee-badge {
+    flex: none;
+    max-width: calc(100cqw - 2 * var(--marquee-fade));
+    border: 1px solid var(--color-border-strong);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  @keyframes tech-marquee-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-100%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tech-marquee {
+      overflow: visible;
+      mask-image: none;
+    }
+
+    .tech-marquee-group {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      width: 100%;
+      min-width: 0;
+      padding-right: 0;
+      animation: none;
+    }
+
+    .tech-marquee-badge {
+      max-width: 100%;
+    }
+
+    .tech-marquee [aria-hidden='true'] {
+      display: none;
+    }
+  }
+
   .hero-role-line {
     grid-area: 1 / 1;
   }

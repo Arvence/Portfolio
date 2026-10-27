@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import HomeAbout from '../components/HomeAbout'
 import ProjectGrid from '../components/ProjectGrid'
 import RotatingRole from '../components/RotatingRole'
+import TechStack from '../components/TechStack'
 import { featuredProjects } from '../data/projects'
 
 export default function Home() {
@@ -27,6 +28,8 @@ export default function Home() {
       </section>
 
       <HomeAbout />
+
+      <TechStack />
 
       <section aria-label="Projects" className="pb-10 sm:pb-12 lg:pb-16">
         <ProjectGrid projects={featuredProjects} />
