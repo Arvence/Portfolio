@@ -9,10 +9,169 @@
     />
     <meta name="color-scheme" content="dark" />
     <title>Portfolio</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <style>
+      html[data-startup],
+      html[data-startup] body {
+        overflow: hidden;
+      }
+
+      html[data-startup]:not([data-startup='exiting']) #root {
+        visibility: hidden;
+      }
+
+      #startup-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        overflow: auto;
+        background: var(--color-background, #0c0d0f);
+        color: var(--color-text-primary, #f5f5f5);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        text-align: center;
+        transition: opacity 180ms ease-out;
+      }
+
+      #startup-loader .startup-content {
+        padding: 2rem;
+      }
+
+      #startup-loader .startup-monogram {
+        margin: 0 0 1.5rem;
+        color: inherit;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        line-height: 1;
+      }
+
+      #startup-status,
+      #startup-error {
+        margin: 0;
+        color: var(--color-text-secondary, #a0a4ab);
+        font-size: 0.875rem;
+        line-height: 1.6;
+      }
+
+      #startup-loader .startup-cue {
+        display: block;
+        width: 4rem;
+        height: 2px;
+        margin: 1.25rem auto 0;
+        background: var(--color-text-muted, #80868f);
+        animation: startup-pulse 1.2s ease-in-out infinite alternate;
+      }
+
+      #startup-retry {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        color: var(--color-text-primary, #f5f5f5);
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+      }
+
+      #startup-retry:focus-visible {
+        outline: 2px solid var(--color-focus, #f5f5f5);
+        outline-offset: 3px;
+      }
+
+      html[data-startup='exiting'] #startup-loader {
+        opacity: 0;
+      }
+
+      @keyframes startup-pulse {
+        from {
+          opacity: 0.3;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #startup-loader {
+          transition: none;
+        }
+
+        #startup-loader .startup-cue {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
-    <noscript>This site requires JavaScript to display its pages.</noscript>
-    <div id="root"></div>
+    <div id="startup-loader">
+      <div class="startup-content">
+        <p class="startup-monogram" aria-hidden="true">AS</p>
+        <div id="startup-status" role="status" aria-live="polite" aria-atomic="true">
+          Loading portfolio
+          <span class="startup-cue" aria-hidden="true"></span>
+        </div>
+        <div id="startup-error" hidden>
+          <p>The portfolio could not load. Please try again.</p>
+          <a id="startup-retry" href="">Reload page</a>
+        </div>
+        <noscript>
+          <style>
+            #startup-status {
+              display: none;
+            }
+          </style>
+          <p>This site requires JavaScript to display its pages.</p>
+        </noscript>
+      </div>
+    </div>
+    <div id="root" inert aria-busy="true"></div>
+    <script>
+      ;(() => {
+        const loader = document.getElementById('startup-loader')
+        const startedAt = performance.now()
+        loader.dataset.startedAt = String(startedAt)
+        document.documentElement.dataset.startup = 'loading'
+
+        let failureTimer
+        const fallbackTimer = window.setTimeout(showError, 10000)
+
+        function showError() {
+          window.clearTimeout(failureTimer)
+          window.clearTimeout(fallbackTimer)
+          document.documentElement.dataset.startup = 'error'
+          document.getElementById('startup-status').hidden = true
+          const error = document.getElementById('startup-error')
+          error.hidden = false
+          error.setAttribute('role', 'alert')
+        }
+
+        function handleError() {
+          window.clearTimeout(failureTimer)
+          failureTimer = window.setTimeout(showError, Math.max(0, Math.ceil(2000 - (performance.now() - startedAt))))
+        }
+
+        function handleScriptError(event) {
+          if (event.target instanceof HTMLScriptElement && event.target.type === 'module') handleError()
+        }
+
+        function cleanup() {
+          window.clearTimeout(failureTimer)
+          window.clearTimeout(fallbackTimer)
+          window.removeEventListener('error', handleScriptError, true)
+          document.removeEventListener('portfolio:startup-error', handleError)
+          document.removeEventListener('portfolio:startup-complete', cleanup)
+        }
+
+        window.addEventListener('error', handleScriptError, true)
+        document.addEventListener('portfolio:startup-error', handleError)
+        document.addEventListener('portfolio:startup-complete', cleanup)
+      })()
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
