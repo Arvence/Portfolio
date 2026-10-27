@@ -111,6 +111,26 @@ html {
 }
 
 @layer components {
+  .hero-role-line {
+    grid-area: 1 / 1;
+  }
+
+  .hero-role-line::after {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 0.85em;
+    margin-left: 0.15em;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-role-line::after {
+      visibility: hidden;
+    }
+  }
+
   .nav-link {
     @apply inline-flex min-h-14 w-16 flex-col items-center justify-center gap-1 rounded-md text-[10px] font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)] aria-[current=page]:text-[var(--color-text-primary)];
   }
