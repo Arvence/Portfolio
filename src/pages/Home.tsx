@@ -21,8 +21,8 @@ export default function Home() {
             <RotatingRole />
           </div>
           <p className="max-w-xl text-base leading-7 text-[var(--color-text-secondary)] sm:text-lg sm:leading-8">
-            Building web applications, backend systems, and developer tools with a focus on clarity, reliability, and
-            long-term maintainability.
+            Software engineering across applications, backend systems, APIs, background processing, and developer tools,
+            with a focus on system design, reliability, testability, and maintainability.
           </p>
         </div>
       </section>

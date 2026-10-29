@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 
 const ROLES = [
-  'Full Stack Developer',
-  'System Developer',
-  '.NET Developer',
   'Software Engineer',
-  'Computer Scientist',
+  'Software Developer',
+  'Backend Developer',
+  'Full Stack Developer',
+  '.NET Developer',
+  'Systems Developer',
 ] as const
 const TYPE_DELAY_MS = 90
 const DELETE_DELAY_MS = 45
