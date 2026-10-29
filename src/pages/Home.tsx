@@ -31,7 +31,19 @@ export default function Home() {
 
       <TechStack />
 
-      <section aria-label="Projects" className="pb-10 sm:pb-12 lg:pb-16">
+      <section
+        id="projects"
+        aria-labelledby="projects-title"
+        className="space-y-10 pb-10 sm:space-y-12 sm:pb-12 lg:pb-16"
+      >
+        <header className="mx-auto w-full max-w-6xl space-y-4">
+          <h2 id="projects-title" className="text-[clamp(2.25rem,4.5vw,3.5rem)] tracking-[-0.04em]">
+            Projects
+          </h2>
+          <p className="text-base leading-7 sm:text-lg sm:leading-8">
+            A selection of full-stack applications, backend systems, and developer tools.
+          </p>
+        </header>
         <ProjectGrid projects={featuredProjects} />
       </section>
     </div>

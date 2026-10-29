@@ -5,6 +5,10 @@ export interface Project {
   summary: string
   description: string
   technologies: string[]
+  coverImage?: {
+    src: string
+    alt: string
+  }
   repositoryUrl?: string
   liveUrl?: string
   featured: boolean
