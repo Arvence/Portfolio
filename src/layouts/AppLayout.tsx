@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router'
 import Container from '../components/Container'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
+import SpaceBackground from '../components/SpaceBackground'
 
 export default function AppLayout() {
   const { pathname } = useLocation()
@@ -18,7 +19,8 @@ export default function AppLayout() {
   }, [pathname])
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[var(--color-background)] text-[var(--color-text-primary)] lg:flex-row">
+    <div className="relative isolate flex min-h-dvh flex-col text-[var(--color-text-primary)] lg:flex-row">
+      <SpaceBackground />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-[var(--color-surface)] focus:px-4 focus:py-2 focus:text-[var(--color-text-primary)]"
