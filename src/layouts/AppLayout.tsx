@@ -35,7 +35,7 @@ export default function AppLayout() {
           tabIndex={-1}
           className={`flex-1 focus:outline-none ${pathname === '/' ? '' : 'py-10 sm:py-12 lg:py-16'}`}
         >
-          <Container className={pathname === '/' ? 'max-w-[1600px]' : ''}>
+          <Container wide={pathname === '/'}>
             <Outlet />
           </Container>
         </main>

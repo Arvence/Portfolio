@@ -1,5 +1,15 @@
 import type { ReactNode } from 'react'
 
-export default function Container({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`mx-auto w-full max-w-[1100px] px-5 sm:px-8 ${className}`}>{children}</div>
+type ContainerProps = {
+  children: ReactNode
+  className?: string
+  wide?: boolean
+}
+
+export default function Container({ children, className = '', wide = false }: ContainerProps) {
+  return (
+    <div className={`mx-auto w-full px-5 sm:px-8 ${wide ? 'max-w-[1600px]' : 'max-w-[1100px]'} ${className}`}>
+      {children}
+    </div>
+  )
 }
