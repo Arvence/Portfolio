@@ -48,7 +48,7 @@ Add `src/assets/` or `src/lib/` when actual assets or shared utilities are neede
 
 ## Homepage behavior
 
-The initial document load displays the monogram loader for at least two seconds. It releases keyboard access and scrolling when startup completes, with a retry message if startup fails. Internal navigation does not restart the loader.
+The monogram loader appears only if the initial application startup is still pending after 200 milliseconds. Fast visits show the portfolio immediately, with no minimum loading time. Startup requires the application script, the main stylesheet, and React's first page commit. Keyboard access and scrolling are then released immediately; an already-visible loader fades out over 180 milliseconds, or disappears immediately with reduced motion. Optional fonts and project images do not delay startup. A failed application script or stylesheet, or a startup exceeding ten seconds, shows a retry message; a late successful startup still releases the page. Internal navigation does not restart the loader.
 
 The hero rotates through developer roles with a typing/deleting effect. Hero and About sections have a minimum height of one small viewport and grow with their content. Four CSS marquee lanes follow About, then the featured projects appear in two columns from the tablet breakpoint upward and one column on phones. Cards use decorative project artwork until a real cover is supplied. The shared footer contains the brand, GitHub link, and Home / Projects / Resume navigation.
 

@@ -16,13 +16,21 @@
       onload="this.media = 'all'"
     />
     <style>
-      html[data-startup],
-      html[data-startup] body {
+      html {
+        background: #0c0d0f;
+      }
+
+      html[data-startup]:not([data-startup='exiting']),
+      html[data-startup]:not([data-startup='exiting']) body {
         overflow: hidden;
       }
 
       html[data-startup]:not([data-startup='exiting']) #root {
         visibility: hidden;
+      }
+
+      html[data-startup] #root {
+        transition: none !important;
       }
 
       #startup-loader {
@@ -37,6 +45,10 @@
         font-family: 'Inter', 'Segoe UI', sans-serif;
         text-align: center;
         transition: opacity 180ms ease-out;
+      }
+
+      #startup-loader[hidden] {
+        display: none;
       }
 
       #startup-loader .startup-content {
@@ -85,6 +97,7 @@
 
       html[data-startup='exiting'] #startup-loader {
         opacity: 0;
+        pointer-events: none;
       }
 
       @keyframes startup-pulse {
@@ -108,7 +121,7 @@
     </style>
   </head>
   <body>
-    <div id="startup-loader">
+    <div id="startup-loader" hidden>
       <div class="startup-content">
         <p class="startup-monogram" aria-hidden="true">AS</p>
         <div id="startup-status" role="status" aria-live="polite" aria-atomic="true">
@@ -121,6 +134,10 @@
         </div>
         <noscript>
           <style>
+            #startup-loader[hidden] {
+              display: grid;
+            }
+
             #startup-status {
               display: none;
             }
@@ -133,16 +150,18 @@
     <script>
       ;(() => {
         const loader = document.getElementById('startup-loader')
-        const startedAt = performance.now()
-        loader.dataset.startedAt = String(startedAt)
-        document.documentElement.dataset.startup = 'loading'
+        document.documentElement.dataset.startup = 'pending'
 
-        let failureTimer
+        const showTimer = window.setTimeout(() => {
+          loader.hidden = false
+          document.documentElement.dataset.startup = 'loading'
+        }, 200)
         const fallbackTimer = window.setTimeout(showError, 10000)
 
         function showError() {
-          window.clearTimeout(failureTimer)
+          window.clearTimeout(showTimer)
           window.clearTimeout(fallbackTimer)
+          loader.hidden = false
           document.documentElement.dataset.startup = 'error'
           document.getElementById('startup-status').hidden = true
           const error = document.getElementById('startup-error')
@@ -150,26 +169,21 @@
           error.setAttribute('role', 'alert')
         }
 
-        function handleError() {
-          window.clearTimeout(failureTimer)
-          failureTimer = window.setTimeout(showError, Math.max(0, Math.ceil(2000 - (performance.now() - startedAt))))
-        }
-
         function handleScriptError(event) {
-          if (event.target instanceof HTMLScriptElement && event.target.type === 'module') handleError()
+          if (event.target instanceof HTMLScriptElement && event.target.type === 'module') showError()
         }
 
         function cleanup() {
-          window.clearTimeout(failureTimer)
+          window.clearTimeout(showTimer)
           window.clearTimeout(fallbackTimer)
           window.removeEventListener('error', handleScriptError, true)
-          document.removeEventListener('portfolio:startup-error', handleError)
-          document.removeEventListener('portfolio:startup-complete', cleanup)
+          document.removeEventListener('portfolio:startup-error', showError)
+          document.removeEventListener('portfolio:startup-ready', cleanup)
         }
 
         window.addEventListener('error', handleScriptError, true)
-        document.addEventListener('portfolio:startup-error', handleError)
-        document.addEventListener('portfolio:startup-complete', cleanup)
+        document.addEventListener('portfolio:startup-error', showError)
+        document.addEventListener('portfolio:startup-ready', cleanup)
       })()
     </script>
     <script type="module" src="/src/main.tsx"></script>
