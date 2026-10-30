@@ -12,6 +12,75 @@ type Star = {
   glint: boolean
 }
 
+type ShootingStar = {
+  x: number
+  y: number
+  dx: number
+  dy: number
+  scale: number
+  travel: number
+  trail: number
+  opacity: number
+  start: number
+  duration: number
+}
+
+function createShootingStar(random: () => number, time: number): ShootingStar {
+  const direction = random() < 0.7 ? 1 : -1
+  const angle = 0.2 + random() * 0.25
+  const strength = random() ** 2
+  const travelScale = 0.1 + random() * 1.9
+  const travel = 0.4 * (travelScale / 0.5)
+  const minSpeed = Math.max(0.12, travel / 2.4)
+  const maxSpeed = Math.min(0.9, travel / 0.45)
+  const speed = minSpeed + random() * (maxSpeed - minSpeed)
+  const trailLifetime = 0.08 + strength * 0.1 + random() * 0.06
+
+  return {
+    x: (direction > 0 ? 0.1 : 0.55) + random() * 0.35,
+    y: 0.06 + random() * 0.28,
+    dx: direction * Math.cos(angle),
+    dy: Math.sin(angle),
+    scale: 0.1 + strength * 1.9,
+    travel,
+    trail: Math.min(travel * 0.3, speed * trailLifetime),
+    opacity: 0.4 + strength * 0.3,
+    start: time,
+    duration: travel / speed,
+  }
+}
+
+function drawMeteor(ctx: CanvasRenderingContext2D, star: ShootingStar, width: number, height: number, time: number) {
+  const progress = (time - star.start) / star.duration
+  const viewportScale = Math.min(width, height)
+  const size = star.scale / 0.5
+  const distance = viewportScale * star.travel * progress
+  const x = star.x * width + star.dx * distance
+  const y = star.y * height + star.dy * distance
+  const length = Math.min(viewportScale * star.trail, distance)
+  const tailX = x - star.dx * length
+  const tailY = y - star.dy * length
+  const opacity = Math.sin(Math.PI * progress) ** 2 * star.opacity
+  const trail = ctx.createLinearGradient(tailX, tailY, x, y)
+  trail.addColorStop(0, 'rgba(165, 210, 240, 0)')
+  trail.addColorStop(0.65, `rgba(165, 210, 240, ${opacity * 0.3})`)
+  trail.addColorStop(1, `rgba(207, 231, 249, ${opacity})`)
+
+  ctx.save()
+  ctx.strokeStyle = trail
+  ctx.lineWidth = size
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(tailX, tailY)
+  ctx.lineTo(x, y)
+  ctx.stroke()
+  ctx.fillStyle = `rgba(207, 231, 249, ${opacity})`
+  ctx.beginPath()
+  ctx.arc(x, y, size, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.restore()
+}
+
 function createStars(seed: number): Star[] {
   const random = createRandom(seed ^ 0x51f2a9)
   return Array.from({ length: 350 }, () => {
@@ -81,7 +150,9 @@ export default function SpaceBackground() {
     const renderer = createNebulaRenderer(seed)
     nebula.append(renderer.canvas)
     const stars = createStars(seed)
+    const random = createRandom(seed ^ 0x7b3d9e21)
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let reducedMotion = motion.matches
     let resolution = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
     let frame = 0
     let resizeTimer = 0
@@ -91,10 +162,22 @@ export default function SpaceBackground() {
     let previousTime = 0
     let nextFrame = 0
     let elapsed = 0
+    let shootingStar: ShootingStar | undefined
+    let nextShootingStarAt = 5 + random() * 7
 
     function paint() {
       renderer.draw(elapsed)
       drawStars(context!, stars, width, height, elapsed)
+      if (reducedMotion) {
+        shootingStar = undefined
+        return
+      }
+      if (shootingStar && elapsed >= shootingStar.start + shootingStar.duration) shootingStar = undefined
+      if (elapsed >= nextShootingStarAt) {
+        shootingStar = createShootingStar(random, elapsed)
+        nextShootingStarAt = elapsed + 5 + random() * 7
+      }
+      if (shootingStar) drawMeteor(context!, shootingStar, width, height, elapsed)
     }
 
     function animate(time: number) {
@@ -115,9 +198,10 @@ export default function SpaceBackground() {
     function syncAnimation() {
       window.cancelAnimationFrame(frame)
       previousTime = 0
+      reducedMotion = motion.matches
       if (document.hidden) return
       paint()
-      if (!motion.matches && !document.getElementById('startup-loader')) {
+      if (!reducedMotion && !document.getElementById('startup-loader')) {
         frame = window.requestAnimationFrame(animate)
       }
     }
