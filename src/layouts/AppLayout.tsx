@@ -19,7 +19,7 @@ export default function AppLayout() {
   }, [pathname])
 
   return (
-    <div className="relative isolate flex min-h-dvh flex-col text-[var(--color-text-primary)] lg:flex-row">
+    <div className="relative isolate flex min-h-dvh flex-col text-[var(--color-text-primary)]">
       <SpaceBackground />
       <a
         href="#main-content"

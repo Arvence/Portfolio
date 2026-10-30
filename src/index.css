@@ -22,6 +22,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height, 6rem) + 1rem);
 }
 
 @media (prefers-reduced-motion: reduce) {

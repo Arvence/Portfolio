@@ -4,7 +4,7 @@ import { NavLink } from 'react-router'
 export default function Navigation() {
   return (
     <nav aria-label="Main navigation">
-      <ul className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 lg:flex-col lg:gap-2">
+      <ul className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
         <li>
           <NavLink to="/" end className="nav-link" aria-label="Home">
             <House size={20} aria-hidden="true" />
