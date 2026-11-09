@@ -87,7 +87,8 @@ export default function Home() {
             Projects
           </h2>
           <p className="projects-copy-enter mx-auto max-w-2xl text-sm leading-6 text-[var(--color-text-secondary)] sm:text-base">
-            A selection of applications and systems built around useful tools, reliable workflows, and thoughtful design.
+            A selection of applications and systems built around useful tools, reliable workflows, and thoughtful
+            design.
           </p>
         </header>
         <ProjectGrid projects={featuredProjects} />

@@ -26,7 +26,7 @@ function startApp() {
     },
   }).render(
     <StrictMode>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <App />
         <StartupLoader />
       </BrowserRouter>
