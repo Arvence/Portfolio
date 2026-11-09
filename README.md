@@ -44,9 +44,11 @@ scripts/        Build-time GitHub Pages fallback generation
 .github/workflows/deploy.yml
 ```
 
-Add `src/assets/` or `src/lib/` when actual assets or shared utilities are needed.
+Solar System texture assets live in `src/assets/solar-system/`. Their source, license, adaptations, and scientific references are listed in [image credits](public/solar-system-credits.txt), which is also linked from the footer and included in the built site.
 
 ## Homepage behavior
+
+The persistent space background includes Earth in the foreground and its orbiting Moon. Reference texture maps load independently of startup. The shared animation clock drives rotation, parallax and a 180-second lunar orbit; reduced motion freezes the scene and hidden tabs pause it. Earth's detailed day, cloud and city-light shading runs on the GPU, with a smaller CPU fallback. Lunar shading uses cached geometry and a capped update rate. An unrendered solar light source determines both bodies' illumination and the Moon's phases. Moon size and orbital eccentricity follow the cited references; distance, time and exposure are adjusted for presentation as described in the image credits.
 
 The monogram loader appears only if the initial application startup is still pending after 200 milliseconds. Fast visits show the portfolio immediately, with no minimum loading time. Startup requires the application script, the main stylesheet, and React's first page commit. Keyboard access and scrolling are then released immediately; an already-visible loader fades out over 180 milliseconds, or disappears immediately with reduced motion. Optional fonts and project images do not delay startup. A failed application script or stylesheet, or a startup exceeding ten seconds, shows a retry message; a late successful startup still releases the page. Internal navigation does not restart the loader.
 

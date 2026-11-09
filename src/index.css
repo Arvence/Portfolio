@@ -288,6 +288,10 @@ html {
     @apply inline-flex min-h-14 w-16 flex-col items-center justify-center gap-1 rounded-md text-[10px] font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)] aria-[current=page]:text-[var(--color-text-primary)];
   }
 
+  .space-effect-button {
+    @apply inline-flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-full border border-[var(--color-border-strong)] bg-black/15 px-1.5 text-[11px] font-medium text-[var(--color-text-secondary)] transition-colors enabled:cursor-pointer enabled:hover:bg-white/10 enabled:hover:text-[var(--color-text-primary)] aria-pressed:bg-white/10 aria-pressed:text-[var(--color-text-primary)] disabled:cursor-not-allowed disabled:opacity-50 md:gap-1.5 md:px-2.5;
+  }
+
   .eyebrow {
     @apply text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-text-muted)];
   }

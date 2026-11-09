@@ -9,6 +9,7 @@ export default function AppLayout() {
   const { pathname } = useLocation()
   const previousPath = useRef(pathname)
   const mainRef = useRef<HTMLElement>(null)
+  const planetVisible = true
 
   useEffect(() => {
     if (previousPath.current !== pathname) {
@@ -20,7 +21,7 @@ export default function AppLayout() {
 
   return (
     <div className="relative isolate flex min-h-dvh flex-col text-[var(--color-text-primary)]">
-      <SpaceBackground />
+      <SpaceBackground planetVisible={planetVisible} />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-[var(--color-surface)] focus:px-4 focus:py-2 focus:text-[var(--color-text-primary)]"

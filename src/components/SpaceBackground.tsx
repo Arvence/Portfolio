@@ -1,5 +1,6 @@
 import { useEffect, useImperativeHandle, useRef, type Ref } from 'react'
 import { createNebulaRenderer, createRandom, type NebulaPulse } from './spaceNebula'
+import { createPlanetScene } from './spacePlanet'
 
 export type SpaceEffect = 'satellite' | 'comet' | 'pulse'
 
@@ -9,6 +10,7 @@ export type SpaceBackgroundControls = {
 
 type SpaceBackgroundProps = {
   ref?: Ref<SpaceBackgroundControls>
+  planetVisible: boolean
 }
 
 type SpaceView = {
@@ -251,13 +253,20 @@ function drawStars(context: CanvasRenderingContext2D, stars: Star[], view: Space
   }
 }
 
-export default function SpaceBackground({ ref }: SpaceBackgroundProps = {}) {
+export default function SpaceBackground({ ref, planetVisible }: SpaceBackgroundProps) {
   const nebulaRef = useRef<HTMLDivElement>(null)
   const starsRef = useRef<HTMLCanvasElement>(null)
   const seedRef = useRef<number | undefined>(undefined)
   const triggerRef = useRef<SpaceBackgroundControls['trigger'] | null>(null)
+  const planetVisibleRef = useRef(planetVisible)
+  const repaintRef = useRef<(() => void) | null>(null)
 
   useImperativeHandle(ref, () => ({ trigger: (effect) => triggerRef.current?.(effect) }), [])
+
+  useEffect(() => {
+    planetVisibleRef.current = planetVisible
+    repaintRef.current?.()
+  }, [planetVisible])
 
   useEffect(() => {
     const nebula = nebulaRef.current
@@ -268,6 +277,7 @@ export default function SpaceBackground({ ref }: SpaceBackgroundProps = {}) {
     const seed = seedRef.current ?? Math.floor(Math.random() * 4294967296)
     seedRef.current = seed
     const renderer = createNebulaRenderer(seed)
+    const planets = createPlanetScene(seed, () => syncAnimation())
     nebula.append(renderer.canvas)
     const stars = createStars(seed)
     const satelliteRandom = createRandom(seed ^ 0x2f6e8b13)
@@ -286,6 +296,7 @@ export default function SpaceBackground({ ref }: SpaceBackgroundProps = {}) {
     let elapsed = 0
     let travel = 0
     let targetTravel = 0
+    let planetOpacity = planetVisibleRef.current ? 1 : 0
     let satellite: Satellite | undefined
     let nextSatelliteAt = 20 + satelliteRandom() * 20
     let comet: Comet | undefined
@@ -350,6 +361,8 @@ export default function SpaceBackground({ ref }: SpaceBackgroundProps = {}) {
         if (elapsed >= nextSatelliteAt) startEffect('satellite')
         if (satellite) drawAtDepth(0.6, () => drawSatellite(context!, satellite!, width, height, elapsed))
       }
+      if (reducedMotion) planetOpacity = planetVisibleRef.current ? 1 : 0
+      planets.draw(context!, { width, height, travel }, elapsed, planetOpacity, reducedMotion)
     }
 
     function animate(time: number) {
@@ -363,6 +376,8 @@ export default function SpaceBackground({ ref }: SpaceBackgroundProps = {}) {
       const seconds = Math.min(delta, 100) / 1000
       elapsed += seconds
       travel += (targetTravel - travel) * (1 - Math.exp(-seconds * 8))
+      const visibilityChange = (planetVisibleRef.current ? 1 : 0) - planetOpacity
+      planetOpacity += Math.sign(visibilityChange) * Math.min(Math.abs(visibilityChange), seconds * 0.6)
       previousTime = time
       nextFrame += 1000 / 60
       if (nextFrame < time) nextFrame = time + 1000 / 60
@@ -412,6 +427,7 @@ export default function SpaceBackground({ ref }: SpaceBackgroundProps = {}) {
       scheduleResize()
     }
 
+    repaintRef.current = syncAnimation
     resize()
     window.addEventListener('resize', scheduleResize)
     window.addEventListener('scroll', updateScroll, { passive: true })
@@ -422,6 +438,7 @@ export default function SpaceBackground({ ref }: SpaceBackgroundProps = {}) {
 
     return () => {
       triggerRef.current = null
+      repaintRef.current = null
       window.cancelAnimationFrame(frame)
       window.clearTimeout(resizeTimer)
       window.removeEventListener('resize', scheduleResize)
@@ -430,6 +447,7 @@ export default function SpaceBackground({ ref }: SpaceBackgroundProps = {}) {
       resolution.removeEventListener('change', handleResolutionChange)
       document.removeEventListener('visibilitychange', syncAnimation)
       document.removeEventListener('portfolio:startup-complete', syncAnimation)
+      planets.dispose()
       renderer.dispose()
       renderer.canvas.remove()
     }

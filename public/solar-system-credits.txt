@@ -1,0 +1,46 @@
+EARTH AND MOON IMAGE CREDITS
+
+Earth day/night/cloud and lunar maps:
+Solar System Scope / INOVE
+https://www.solarsystemscope.com/textures/
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+
+Source files: 2k_earth_daymap.jpg, 2k_earth_nightmap.jpg,
+2k_earth_clouds.jpg and 2k_moon.jpg.
+Source URL prefix: https://www.solarsystemscope.com/textures/download/
+
+The maps incorporate NASA imagery and elevation data. Solar System Scope
+notes that unmapped gaps may be reconstructed and that its source colors
+are enhanced. These are reference composites, not live spacecraft images.
+
+Adaptations for this portfolio: resized and compressed to WebP, mapped to
+rotating spheres, shaded from an unrendered solar light source, and exposed
+for a dim space background. Earth uses separate day, city-light, and cloud
+maps with a thin atmosphere. No endorsement by the source creators or NASA
+is implied.
+
+SCIENTIFIC REFERENCES AND PRESENTATION SCALE
+
+NASA Earth and Moon comparison and lunar fact sheet:
+https://science.nasa.gov/moon/by-the-numbers/
+https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html
+NASA lunar rotation and phases:
+https://science.nasa.gov/moon/top-moon-questions/
+Lunar and Planetary Institute, Lunar Sourcebook, Chapter 3 (orbital direction):
+https://www.lpi.usra.edu/publications/books/lunar_sourcebook/pdf/Chapter03.pdf
+
+Earth and the Moon are the only rendered celestial bodies. The Moon's
+radius is 1737.4/6371 of Earth's. Its eccentricity is 0.0549, with an
+Earth-facing surface and prograde orbit. The orbit is projected at
+68 degrees for this camera view;
+this is not a claim that the Moon's ecliptic inclination is 68 degrees.
+
+Orbital distance is compressed to 2.45 Earth radii (the real average is
+about 60.3), and a lunar orbit takes 180 display seconds. Earth's rotation
+is accelerated independently. Apparent sizes, distances, exposure and
+camera framing are composed for readability rather than being to scale.
+Phases follow the solar-light/body vectors in this miniature
+scene; this external viewpoint is not the view of phases from Earth's
+surface. This is an astronomical illustration, not an ephemeris or a
+physical simulation of Solar System distances and orbital periods.
