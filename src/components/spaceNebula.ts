@@ -1,7 +1,16 @@
+export type NebulaPulse = {
+  x: number
+  y: number
+  radius: number
+  strength: number
+  start: number
+  duration: number
+}
+
 type NebulaRenderer = {
   canvas: HTMLCanvasElement
   resize: (width: number, height: number) => void
-  draw: (time: number) => void
+  draw: (time: number, travel: number, pulse?: NebulaPulse) => void
   dispose: () => void
 }
 
@@ -29,6 +38,8 @@ uniform vec2 u_offset;
 uniform float u_aspect;
 uniform float u_slope;
 uniform float u_time;
+uniform float u_travel;
+uniform vec4 u_pulse;
 varying vec2 v_uv;
 
 float noise(vec3 point) {
@@ -41,33 +52,50 @@ float noise(vec3 point) {
   return mix(lower, upper, blend.z);
 }
 
-float fractal(vec2 point) {
+float fractal(vec2 point, float time) {
   float value = 0.0;
   float amplitude = 0.52;
   for (int octave = 0; octave < 5; octave++) {
     float layer = float(octave);
     vec2 drift = mod(layer, 2.0) < 1.0 ? vec2(0.013, -0.008) : vec2(-0.011, 0.006);
-    value += noise(vec3(point + drift * u_time, u_time * (0.028 + layer * 0.009))) * amplitude;
+    value += noise(vec3(point + drift * time, time * (0.028 + layer * 0.009))) * amplitude;
     point = point * 2.03 + vec2(17.1, 9.2);
     amplitude *= 0.48;
   }
   return value;
 }
 
+vec2 layerUv(vec2 uv, float depth) {
+  vec2 center = vec2(0.5, 0.45);
+  float approach = 1.0 - exp(-u_travel * 0.35);
+  return (uv - center + vec2(0.0, approach * depth * 0.1)) / (1.0 + approach * depth * 0.55) + center;
+}
+
 void main() {
   vec2 uv = vec2(v_uv.x, 1.0 - v_uv.y);
-  vec2 point = uv * vec2(max(1.0, u_aspect), max(1.0, 1.0 / u_aspect)) + u_offset;
-  float broad = noise(vec3(point * 1.6 + vec2(0.007, -0.004) * u_time, u_time * 0.018));
-  float warp = noise(vec3(point * 2.4 + vec2(31.0, 13.0) + vec2(-0.009, 0.006) * u_time, u_time * 0.023));
-  float cloud = fractal(point * 3.8 + vec2(broad, warp) * 1.6);
-  float detail = noise(vec3(point * 42.0 + vec2(warp, broad) * 4.0 + vec2(0.02, -0.015) * u_time, u_time * 0.045));
-  float distance = uv.y + u_slope * uv.x - 1.2 + (cloud - 0.5) * 0.65 + (broad - 0.5) * 0.32 + (detail - 0.5) * 0.035;
+  vec2 extent = vec2(max(1.0, u_aspect), max(1.0, 1.0 / u_aspect));
+  vec2 cloudUv = layerUv(uv, 0.4);
+  vec2 journey = vec2(0.5, -0.24) * u_travel;
+  vec2 point = cloudUv * extent + u_offset + journey * 0.4;
+  vec2 farPoint = layerUv(uv, 0.2) * extent + u_offset + journey * 0.2;
+  vec2 nearPoint = layerUv(uv, 0.7) * extent + u_offset + journey * 0.7;
+  float time = u_time * 6.0;
+  float broad = noise(vec3(farPoint * 1.6 + vec2(0.007, -0.004) * time, time * 0.018));
+  float warp = noise(vec3(point * 2.4 + vec2(31.0, 13.0) + vec2(-0.009, 0.006) * time, time * 0.023));
+  float cloud = fractal(point * 3.8 + vec2(broad, warp) * 1.6, time);
+  float detail = noise(vec3(nearPoint * 42.0 + vec2(warp, broad) * 4.0 + vec2(0.02, -0.015) * time, time * 0.045));
+  float distance = cloudUv.y + u_slope * cloudUv.x - 1.2 + (cloud - 0.5) * 0.65 + (broad - 0.5) * 0.32 + (detail - 0.5) * 0.035;
   float edge = exp(-pow(distance + 0.055, 2.0) / 0.015) * (0.2 + cloud * 0.8) * (0.7 + detail * 0.3);
   float shadow = smoothstep(-0.015, 0.105, distance) * 0.94;
   float haze = max(0.0, cloud * 1.3 - 0.12) * (0.4 + broad * 0.6);
   float vignette = 1.0 - min(0.55, dot(uv - vec2(0.5, 0.45), uv - vec2(0.5, 0.45)) * 0.9);
   float grain = (texture2D(u_noise, gl_FragCoord.xy / 256.0).r - 0.5) * 2.6;
   vec3 sky = vec3(8.0, 19.0, 32.0) + haze * vec3(11.0, 24.0, 37.0) + edge * vec3(4.0, 16.0, 29.0);
+  if (u_pulse.w > 0.0) {
+    vec2 lightDelta = (cloudUv - u_pulse.xy) * extent + vec2(warp - 0.5, broad - 0.5) * 0.1;
+    float illumination = exp(-dot(lightDelta, lightDelta) * 2.0 / (u_pulse.z * u_pulse.z)) * u_pulse.w;
+    sky += vec3(3.0, 10.0, 20.0) * illumination * min(1.0, haze * 0.9 + edge * 0.55);
+  }
   vec3 color = mix(sky, vec3(3.0, 7.0, 12.0), shadow) * vignette + grain;
   gl_FragColor = vec4(color / 255.0, 1.0);
 }
@@ -89,6 +117,14 @@ function sizeCanvas(canvas: HTMLCanvasElement, width: number, height: number, li
   canvas.height = Math.max(1, Math.round(height * scale))
 }
 
+function pulseLight(time: number, pulse?: NebulaPulse) {
+  if (!pulse) return [0, 0, 1, 0] as const
+  const progress = Math.max(0, Math.min(1, (time - pulse.start) / pulse.duration))
+  const radius = pulse.radius * (0.65 + progress * 0.8)
+  const strength = Math.sin(Math.PI * progress) ** 2 * pulse.strength
+  return [pulse.x, pulse.y, radius, strength] as const
+}
+
 function createGpuRenderer(field: NoiseField): NebulaRenderer | undefined {
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('webgl', {
@@ -105,9 +141,13 @@ function createGpuRenderer(field: NoiseField): NebulaRenderer | undefined {
   let buffer: WebGLBuffer | null = null
   let texture: WebGLTexture | null = null
   let timeUniform: WebGLUniformLocation | null = null
+  let travelUniform: WebGLUniformLocation | null = null
+  let pulseUniform: WebGLUniformLocation | null = null
   let aspectUniform: WebGLUniformLocation | null = null
   let aspect = 1
   let lastTime = 0
+  let lastTravel = 0
+  let lastPulse: NebulaPulse | undefined
 
   function releaseResources() {
     gl.deleteProgram(program)
@@ -168,6 +208,8 @@ function createGpuRenderer(field: NoiseField): NebulaRenderer | undefined {
     gl.uniform2f(gl.getUniformLocation(program, 'u_offset'), field.offsetX, field.offsetY)
     gl.uniform1f(gl.getUniformLocation(program, 'u_slope'), field.slope)
     timeUniform = gl.getUniformLocation(program, 'u_time')
+    travelUniform = gl.getUniformLocation(program, 'u_travel')
+    pulseUniform = gl.getUniformLocation(program, 'u_pulse')
     aspectUniform = gl.getUniformLocation(program, 'u_aspect')
     return true
   }
@@ -177,11 +219,15 @@ function createGpuRenderer(field: NoiseField): NebulaRenderer | undefined {
     return
   }
 
-  function draw(time: number) {
+  function draw(time: number, travel: number, pulse?: NebulaPulse) {
     lastTime = time
+    lastTravel = travel
+    lastPulse = pulse
     if (!program || gl.isContextLost()) return
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.uniform1f(timeUniform, time)
+    gl.uniform1f(travelUniform, travel)
+    gl.uniform4f(pulseUniform, ...pulseLight(time, pulse))
     gl.uniform1f(aspectUniform, aspect)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
@@ -192,7 +238,7 @@ function createGpuRenderer(field: NoiseField): NebulaRenderer | undefined {
   }
 
   function handleContextRestored() {
-    if (initialize()) draw(lastTime)
+    if (initialize()) draw(lastTime, lastTravel, lastPulse)
   }
 
   canvas.addEventListener('webglcontextlost', handleContextLost)
@@ -219,6 +265,8 @@ function createCpuRenderer(field: NoiseField): NebulaRenderer {
   const context = canvas.getContext('2d', { alpha: false })
   let aspect = 1
   let lastTime = -Infinity
+  let lastTravel = 0
+  let lastPulse: NebulaPulse | undefined
   let image: ImageData | undefined
 
   function sample(x: number, y: number) {
@@ -265,21 +313,54 @@ function createCpuRenderer(field: NoiseField): NebulaRenderer {
       image = context?.createImageData(canvas.width, canvas.height)
       lastTime = -Infinity
     },
-    draw(time) {
-      if (!context || !image || time - lastTime < 1 / 12) return
+    draw(time, travel, pulse) {
+      if (!context || !image) return
+      const changedWhilePaused = time === lastTime && (travel !== lastTravel || pulse !== lastPulse)
+      if (time - lastTime < 1 / 12 && !changedWhilePaused) return
       lastTime = time
+      lastTravel = travel
+      lastPulse = pulse
+      const light = pulseLight(time, pulse)
+      const falloff = 2 / (light[2] * light[2])
+      const ambientTime = time * 6
+      const approach = 1 - Math.exp(-travel * 0.35)
+      const farZoom = 1 + approach * 0.2 * 0.55
+      const cloudZoom = 1 + approach * 0.4 * 0.55
+      const nearZoom = 1 + approach * 0.7 * 0.55
+      const journeyX = travel * 0.5
+      const journeyY = travel * -0.24
       for (let y = 0; y < canvas.height; y++) {
         for (let x = 0; x < canvas.width; x++) {
           const u = x / canvas.width
           const v = y / canvas.height
-          const sx = u * Math.max(1, aspect) + field.offsetX
-          const sy = v * Math.max(1, 1 / aspect) + field.offsetY
-          const broad = noise(sx * 1.6 + time * 0.007, sy * 1.6 - time * 0.004, time * 0.018)
-          const warp = noise(sx * 2.4 + 31 - time * 0.009, sy * 2.4 + 13 + time * 0.006, time * 0.023)
-          const cloud = fractal(sx * 3.8 + broad * 1.6, sy * 3.8 + warp * 1.6, time)
-          const detail = noise(sx * 42 + warp * 4 + time * 0.02, sy * 42 + broad * 4 - time * 0.015, time * 0.045)
+          const cloudU = (u - 0.5) / cloudZoom + 0.5
+          const cloudV = (v - 0.45 + approach * 0.4 * 0.1) / cloudZoom + 0.45
+          const sx = cloudU * Math.max(1, aspect) + field.offsetX + journeyX * 0.4
+          const sy = cloudV * Math.max(1, 1 / aspect) + field.offsetY + journeyY * 0.4
+          const farX = ((u - 0.5) / farZoom + 0.5) * Math.max(1, aspect) + field.offsetX + journeyX * 0.2
+          const farY =
+            ((v - 0.45 + approach * 0.2 * 0.1) / farZoom + 0.45) * Math.max(1, 1 / aspect) +
+            field.offsetY +
+            journeyY * 0.2
+          const nearX = ((u - 0.5) / nearZoom + 0.5) * Math.max(1, aspect) + field.offsetX + journeyX * 0.7
+          const nearY =
+            ((v - 0.45 + approach * 0.7 * 0.1) / nearZoom + 0.45) * Math.max(1, 1 / aspect) +
+            field.offsetY +
+            journeyY * 0.7
+          const broad = noise(farX * 1.6 + ambientTime * 0.007, farY * 1.6 - ambientTime * 0.004, ambientTime * 0.018)
+          const warp = noise(
+            sx * 2.4 + 31 - ambientTime * 0.009,
+            sy * 2.4 + 13 + ambientTime * 0.006,
+            ambientTime * 0.023,
+          )
+          const cloud = fractal(sx * 3.8 + broad * 1.6, sy * 3.8 + warp * 1.6, ambientTime)
+          const detail = noise(
+            nearX * 42 + warp * 4 + ambientTime * 0.02,
+            nearY * 42 + broad * 4 - ambientTime * 0.015,
+            ambientTime * 0.045,
+          )
           const distance =
-            v + field.slope * u - 1.2 + (cloud - 0.5) * 0.65 + (broad - 0.5) * 0.32 + (detail - 0.5) * 0.035
+            cloudV + field.slope * cloudU - 1.2 + (cloud - 0.5) * 0.65 + (broad - 0.5) * 0.32 + (detail - 0.5) * 0.035
           const edge = Math.exp(-((distance + 0.055) ** 2) / 0.015) * (0.2 + cloud * 0.8) * (0.7 + detail * 0.3)
           const transition = Math.max(0, Math.min(1, (distance + 0.015) / 0.12))
           const shadow = transition * transition * (3 - 2 * transition) * 0.94
@@ -287,9 +368,18 @@ function createCpuRenderer(field: NoiseField): NebulaRenderer {
           const vignette = 1 - Math.min(0.55, ((u - 0.5) ** 2 + (v - 0.45) ** 2) * 0.9)
           const grain = (field.values[((y & 255) << 8) | (x & 255)]! / 255 - 0.5) * 2.6
           const index = (y * canvas.width + x) * 4
-          image.data[index] = ((8 + haze * 11 + edge * 4) * (1 - shadow) + 3 * shadow) * vignette + grain
-          image.data[index + 1] = ((19 + haze * 24 + edge * 16) * (1 - shadow) + 7 * shadow) * vignette + grain
-          image.data[index + 2] = ((32 + haze * 37 + edge * 29) * (1 - shadow) + 12 * shadow) * vignette + grain
+          let illumination = 0
+          if (light[3] > 0) {
+            const dx = (cloudU - light[0]) * Math.max(1, aspect) + (warp - 0.5) * 0.1
+            const dy = (cloudV - light[1]) * Math.max(1, 1 / aspect) + (broad - 0.5) * 0.1
+            illumination = Math.exp(-(dx * dx + dy * dy) * falloff) * light[3] * Math.min(1, haze * 0.9 + edge * 0.55)
+          }
+          image.data[index] =
+            ((8 + haze * 11 + edge * 4 + illumination * 3) * (1 - shadow) + 3 * shadow) * vignette + grain
+          image.data[index + 1] =
+            ((19 + haze * 24 + edge * 16 + illumination * 10) * (1 - shadow) + 7 * shadow) * vignette + grain
+          image.data[index + 2] =
+            ((32 + haze * 37 + edge * 29 + illumination * 20) * (1 - shadow) + 12 * shadow) * vignette + grain
           image.data[index + 3] = 255
         }
       }
