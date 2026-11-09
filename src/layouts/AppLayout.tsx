@@ -6,18 +6,20 @@ import Header from '../components/Header'
 import SpaceBackground from '../components/SpaceBackground'
 
 export default function AppLayout() {
-  const { pathname } = useLocation()
+  const { pathname, hash, key } = useLocation()
   const previousPath = useRef(pathname)
   const mainRef = useRef<HTMLElement>(null)
   const planetVisible = true
 
   useEffect(() => {
     if (previousPath.current !== pathname) {
-      window.scrollTo({ top: 0, behavior: 'instant' })
       mainRef.current?.focus({ preventScroll: true })
       previousPath.current = pathname
     }
-  }, [pathname])
+    const target = hash ? document.getElementById(hash.slice(1)) : null
+    if (target) target.scrollIntoView({ behavior: 'instant' })
+    else window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [pathname, hash, key])
 
   return (
     <div className="relative isolate flex min-h-dvh flex-col text-[var(--color-text-primary)]">

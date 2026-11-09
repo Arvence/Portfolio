@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react'
 import { useLayoutEffect, useRef, useState } from 'react'
+import { Link } from 'react-router'
 import type { Project } from '../types/project'
 import ProjectCover from './ProjectCover'
 
@@ -102,14 +103,14 @@ export default function ProjectGrid({ projects }: { projects: Project[] }) {
 
                 <div className="project-card-actions pointer-events-auto relative z-20 flex items-center justify-between gap-3 border-t border-[var(--color-border)]">
                   {project.walkthrough && (
-                    <a
-                      href={walkthroughUrl}
+                    <Link
+                      to={walkthroughUrl}
                       aria-label={`Walkthrough for ${project.name}`}
                       className="inline-flex min-h-8 items-center gap-1.5 text-sm font-medium text-[#d9e8f4] transition-colors hover:text-white focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a5d2f0]"
                     >
                       Walkthrough
                       <ArrowUpRight size={16} aria-hidden="true" />
-                    </a>
+                    </Link>
                   )}
                   <span className="ml-auto inline-flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="size-4">

@@ -18,7 +18,7 @@ export default function ProjectLayout(props: ProjectLayoutProps) {
   return (
     <article className="mx-auto w-full max-w-[900px] space-y-10 py-2">
       <Link
-        to="/projects"
+        to="/#projects"
         className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
       >
         <ArrowLeft size={16} aria-hidden="true" />
