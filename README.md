@@ -1,6 +1,6 @@
 # Portfolio
 
-A software engineering portfolio with a dark shared layout, responsive navigation, and dedicated routes for WoWiki, TaskForge, and Flagbit. The homepage includes a startup loader, full-height hero and About sections, four scrolling technology lanes, a visual project showcase, and a shared footer. Project detail pages provide introductory metadata and empty content regions for case studies; the resume content region is also intentionally empty.
+A software engineering portfolio with a centered hero, featured projects, contact links, and a persistent animated space background. TaskForge and Flagbit have dedicated walkthrough routes with introductory metadata and empty content regions for future case studies.
 
 ## Stack
 
@@ -17,15 +17,15 @@ Open the local URL printed by Vite.
 
 ## Commands
 
-| Command                | Purpose                                                      |
-| ---------------------- | ------------------------------------------------------------ |
-| `npm run dev`          | Start the development server                                 |
-| `npm run build`        | Type check, build into `dist/`, and generate `dist/404.html` |
-| `npm run preview`      | Serve the production build locally                           |
-| `npm run typecheck`    | Check application and Vite configuration types               |
-| `npm run lint`         | Run ESLint with zero warnings allowed                        |
-| `npm run format`       | Format source and configuration files                        |
-| `npm run format:check` | Check formatting without changing files                      |
+| Command                | Purpose                                                                              |
+| ---------------------- | ------------------------------------------------------------------------------------ |
+| `npm run dev`          | Start the development server                                                         |
+| `npm run build`        | Type check, build into `dist/`, and generate static route entries and a 404 fallback |
+| `npm run preview`      | Serve the production build locally                                                   |
+| `npm run typecheck`    | Check application and Vite configuration types                                       |
+| `npm run lint`         | Run ESLint with zero warnings allowed                                                |
+| `npm run format`       | Format source and configuration files                                                |
+| `npm run format:check` | Check formatting without changing files                                              |
 
 ## Structure
 
@@ -33,14 +33,14 @@ Open the local URL printed by Vite.
 src/
   components/   Shared layout, startup loader, homepage sections, and project cards
   layouts/      App shell, project detail shell, and route focus management
-  pages/        Home, Projects, ProjectDetails, Resume, About, and NotFound
-    projects/   Dedicated WoWiki, TaskForge, and Flagbit pages
+  pages/        Home, NotFound, and retained page components
+    projects/   Project pages; TaskForge and Flagbit are currently routed
   data/         Typed project collection, featured projects, and technology lanes
   types/        Project model
   App.tsx       Route definitions
   main.tsx      React entry point and BrowserRouter
   index.css     Tailwind import and dark global styles
-scripts/        Build-time GitHub Pages fallback generation
+scripts/        Build-time static route and GitHub Pages fallback generation
 .github/workflows/deploy.yml
 ```
 
@@ -52,19 +52,19 @@ The persistent space background includes Earth in the foreground and its orbitin
 
 The monogram loader appears only if the initial application startup is still pending after 200 milliseconds. Fast visits show the portfolio immediately, with no minimum loading time. Startup requires the application script, the main stylesheet, and React's first page commit. Keyboard access and scrolling are then released immediately; an already-visible loader fades out over 180 milliseconds, or disappears immediately with reduced motion. Optional fonts and project images do not delay startup. A failed application script or stylesheet, or a startup exceeding ten seconds, shows a retry message; a late successful startup still releases the page. Internal navigation does not restart the loader.
 
-The hero rotates through developer roles with a typing/deleting effect. Hero and About sections have a minimum height of one small viewport and grow with their content. Four CSS marquee lanes follow About, then the featured projects appear in two columns from the tablet breakpoint upward and one column on phones. Cards use decorative project artwork until a real cover is supplied. The shared footer contains the brand, GitHub link, and Home / Projects / Resume navigation.
+The hero rotates through developer roles with a typing/deleting effect. Featured projects follow in one column on phones, two on tablets, and three on wide screens. Cards link to repositories and show image placeholders until a real cover is supplied. A contact section and compact shared footer complete the page.
 
-Reduced-motion preferences disable typing, marquee movement, and the loader fade; technology lanes become wrapping lists without duplicate content. The homepage uses a wider container without changing the spacing of other routes. There is no scroll snapping.
+Reduced-motion preferences disable typing, entrance animations, background motion, and the loader fade. The homepage uses a wider container without changing the spacing of other routes. There is no scroll snapping.
 
 ## Routing and project data
 
-`BrowserRouter` uses normal URLs: `/`, `/projects`, `/projects/wowiki`, `/projects/taskforge`, `/projects/flagbit`, and `/resume`. The existing `/about` route remains accessible directly. Additional project slugs resolve through `/projects/:slug`, with a project-specific fallback for unknown slugs. Other unmatched paths render `NotFound` within the shared layout. Navigation uses `NavLink` with an active state and compact icon-over-label links beside the monogram in a borderless top header. The header stays at the top while scrolling and gains a translucent dark background; scroll padding follows its height to keep navigation targets visible. The layout includes a keyboard skip link and visible focus styles; route changes reset scrolling and move focus to the main content. Navigation remains visible on small screens and wraps when needed.
+`BrowserRouter` uses `/`, `/projects/taskforge`, and `/projects/flagbit`, with its basename taken from Vite's `BASE_URL`. Unmatched paths render `NotFound` within the shared layout. The sticky header links to the homepage's Home, Projects, and Contact sections, including when accessed from a walkthrough. Internal route changes preserve the background, move focus to the main content, and scroll to the requested section or the top. The layout includes a keyboard skip link and visible focus styles.
 
-Project listing metadata is centralized in `src/data/projects.ts`, using the `Project` interface in `src/types/project.ts`. The homepage and project collection use the same project cards; `featured: true` controls homepage inclusion. The dedicated pages in `src/pages/projects/` define their own introductory content and use `ProjectLayout` with an empty content region for future case studies. Keep their names, categories, and summaries consistent with the listing data. Entries without a dedicated route use `ProjectDetails`, which renders their metadata and description from the data collection.
+Project listing metadata is centralized in `src/data/projects.ts`, using the `Project` interface in `src/types/project.ts`. `featured: true` controls homepage inclusion. Set `walkthrough: true` only when a corresponding route is registered in `src/App.tsx`. The dedicated pages define their own introductory content and use `ProjectLayout`; keep their names, categories, and summaries consistent with the listing data.
 
-An optional `coverImage` supplies `src` and descriptive `alt` text. Import local images from `src/assets/` so Vite emits URLs appropriate to its configured base. A missing or failed cover falls back to the decorative project artwork; no screenshots are implied by that artwork.
+An optional `coverImage` supplies `src` and descriptive `alt` text. Import local images from `src/assets/` so Vite emits URLs appropriate to its configured base. A missing or failed cover falls back to an image placeholder.
 
-The project detail shell supports optional category metadata, summaries, technology tags, repository URLs, and live URLs. Only supplied URLs render as links; use full trusted `https://` URLs. Add case-study content as children of `ProjectLayout` and resume content in `src/pages/Resume.tsx` without changing the shared page structure.
+The project detail shell supports optional category metadata, summaries, technology tags, repository URLs, and live URLs. Only supplied URLs render as links; use full trusted `https://` URLs. Add case-study content as children of `ProjectLayout`.
 
 ## Production and GitHub Pages
 
@@ -77,23 +77,34 @@ npm run build
 npm run preview
 ```
 
-The build copies `dist/index.html` to `dist/404.html`. GitHub Pages can serve that fallback for direct requests to nested routes, allowing React Router to render the original URL when the asset base and router basename match the deployment. Pages still returns HTTP 404 for these fallback requests; rendering the route does not provide server-side rewrites or HTTP 200 responses for crawlers. Vite preview uses its own SPA fallback and does not emulate this status behavior.
+The intended project site is [https://arvence.github.io/Portfolio/](https://arvence.github.io/Portfolio/), based on this checkout's `Arvence/Portfolio` remote. This is a static Vite application: it does not require Next.js, SSR, server actions, API routes, or server-side image optimization.
 
-### Hosting target must be confirmed
+### Automatic deployment
 
-This checkout belongs to [`Arvence/Portfolio`](https://github.com/Arvence/Portfolio). During the October 28, 2026 audit, GitHub reported `has_pages: false`, no Actions runs, and no deployments. The Pages endpoint and both `https://arvence.github.io/Portfolio/` and `https://arvence.github.io/` returned HTTP 404. There is no confirmed hosting URL. The existing root configuration is retained until the intended target is established; it is not evidence of a live root-domain deployment.
+In **Repository → Settings → Pages → Build and deployment**, select **GitHub Actions** once. The workflow in `.github/workflows/deploy.yml` runs on every push to `main` and supports manual runs from the Actions tab. It uses GitHub's official `configure-pages`, `upload-pages-artifact`, and `deploy-pages` actions and a `github-pages` environment. The build can read Pages metadata; Pages write and OIDC permissions are restricted to the deployment job.
 
-Use the configuration matching the URL shown in this repository's **Settings → Pages**:
+`configure-pages` supplies the site's `base_path` to the build as `PAGES_BASE_PATH`. Vite uses this prefix for JavaScript, CSS, and imported texture URLs; `BrowserRouter` uses the same value through `import.meta.env.BASE_URL`. This supports ordinary project sites such as `/Portfolio/` and root sites or custom domains without changing application routes. Public asset links use `BASE_URL` as well. Keep the capital `P` in this repository's URL.
 
-| Confirmed hosting URL                                                            | `vite.config.ts`                 | `src/main.tsx`                                                           |
-| -------------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------ |
-| Project site at `https://arvence.github.io/Portfolio/`                           | Change `base` to `'/Portfolio/'` | Change the opening router tag to `<BrowserRouter basename="/Portfolio">` |
-| A confirmed root site or custom domain serving this repository's artifact at `/` | Keep `base: '/'`                 | Keep `<BrowserRouter>` without a basename                                |
+The workflow installs the lockfile with `npm ci`, checks formatting and linting, runs the type-checked build, uploads `dist`, and deploys it. No personal access token or other custom secret is required in the workflow. Generated output and dependencies remain ignored by Git.
 
-For a project site, make both changes together, rebuild, and open `/Portfolio/` in preview. Internal React Router paths remain `/projects`, `/resume`, and so on; the router supplies the prefix. Keep the capital `P` in `/Portfolio/`, and avoid hardcoded root-relative asset URLs such as `/assets/example.png`.
+### Local production preview
 
-The next manual step is to confirm the intended URL and Pages source in **Arvence/Portfolio**, then apply the matching configuration before enabling or triggering deployment. This repository's workflow deploys its own `dist`; it does not publish to a separate `Arvence.github.io` repository. No account settings or other repositories need to be changed as part of local validation.
+Normal development and builds default to `/`. To reproduce the project-site prefix in PowerShell:
 
-The workflow installs the lockfile with `npm ci`, checks formatting and linting, runs the type-checked build (including the fallback), uploads `dist`, and deploys using the `github-pages` environment and Pages/OIDC permissions. Once Pages is configured to use GitHub Actions, a push to `main` or a manual workflow run triggers deployment. Generated output and dependencies are ignored by Git.
+```powershell
+$env:PAGES_BASE_PATH = '/Portfolio'
+npm.cmd run build
+npm.cmd run preview
+```
 
-After an authorized deployment, check the site root, `/projects`, each dedicated project route, `/resume`, and an unknown path under the confirmed base. Refresh nested routes, verify that JavaScript and CSS load from the correct base, and distinguish a rendered fallback page from its HTTP 404 status. A successful local build does not establish that Pages is configured or that deployment succeeded.
+Open `http://localhost:4173/Portfolio/` (or the port Vite prints). Keep the variable set for this preview, then use `Remove-Item Env:PAGES_BASE_PATH` before returning to ordinary local development. In a POSIX shell, prefix each command with `PAGES_BASE_PATH=/Portfolio`.
+
+### Direct routes and verification
+
+The build copies the application shell to `dist/projects/taskforge/index.html` and `dist/projects/flagbit/index.html`. GitHub Pages serves these known routes directly, including reloads, with a trailing slash and HTTP 200. Add a matching entry in `scripts/create-spa-fallback.mjs` whenever another walkthrough route is enabled.
+
+The build also creates `dist/404.html`. Unknown paths under the deployment prefix render the application's `NotFound` page, with an HTTP 404 response. Vite preview has its own SPA fallback and does not reproduce that status behavior.
+
+After deployment, check the homepage, both walkthroughs, header and back links, and an unknown path. Verify CSS, JavaScript, all four Earth/Moon texture files, and the footer's image-credits link under the correct prefix. A local build alone does not establish deployment success; confirm the Actions run and the live URL.
+
+References: [Vite's GitHub Pages guide](https://vite.dev/guide/static-deploy.html#github-pages) and [GitHub's custom Pages workflow documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
