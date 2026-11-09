@@ -11,7 +11,7 @@
   --color-border-strong: rgba(255, 255, 255, 0.14);
   --color-focus: #f5f5f5;
   color-scheme: dark;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: 'Lexend', 'Segoe UI', sans-serif;
   background-color: var(--color-background);
   color: var(--color-text-primary);
   font-synthesis: none;
@@ -53,7 +53,7 @@ html {
     background: var(--color-background);
     color: var(--color-text-primary);
     line-height: 1.6;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+    font-family: 'Lexend', 'Segoe UI', sans-serif;
   }
 
   h1,
@@ -252,6 +252,22 @@ html {
     animation: heading-rise 420ms ease-out both;
   }
 
+  .home-heading-enter {
+    animation: heading-rise 420ms ease-out both;
+  }
+
+  .home-role-enter {
+    animation: projects-copy-enter 500ms 100ms ease-out both;
+  }
+
+  .home-description-enter {
+    animation: projects-copy-enter 550ms 200ms ease-out both;
+  }
+
+  .home-actions-enter {
+    animation: project-card-rise 600ms 300ms ease-out both;
+  }
+
   .projects-copy-enter {
     animation: projects-copy-enter 500ms 100ms ease-out both;
   }
@@ -300,6 +316,10 @@ html {
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .home-heading-enter,
+    .home-role-enter,
+    .home-description-enter,
+    .home-actions-enter,
     .projects-heading-enter,
     .projects-copy-enter,
     .project-card-enter {

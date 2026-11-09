@@ -42,8 +42,8 @@ export default function AppLayout() {
             <Outlet />
           </Container>
         </main>
-        <Footer />
       </div>
+      <Footer />
     </div>
   )
 }

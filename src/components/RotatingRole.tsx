@@ -68,9 +68,9 @@ export default function RotatingRole() {
   }, [])
 
   return (
-    <p className="text-[clamp(1.25rem,2.5vw,2.25rem)] leading-relaxed font-medium tracking-[-0.025em] text-[var(--color-text-primary)]">
+    <p className="text-center text-[clamp(1.25rem,2.5vw,2.25rem)] leading-relaxed font-medium tracking-[-0.025em] text-[var(--color-text-primary)]">
       <span className="sr-only">{ROLES[0]}</span>
-      <span aria-hidden="true" className="grid">
+      <span aria-hidden="true" className="grid justify-items-center">
         {ROLES.map((role) => (
           <span key={role} className="hero-role-line invisible">
             {role}
