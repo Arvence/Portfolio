@@ -11,5 +11,6 @@ export interface Project {
   }
   repositoryUrl?: string
   liveUrl?: string
+  walkthrough?: boolean
   featured: boolean
 }
