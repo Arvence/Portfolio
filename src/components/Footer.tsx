@@ -37,15 +37,6 @@ export default function Footer() {
             ·
           </span>
           <span className="transition-colors hover:text-[#d9e8f4]">Status</span>
-          <span aria-hidden="true" className="text-[#a5d2f0]/50">
-            ·
-          </span>
-          <a
-            href={`${import.meta.env.BASE_URL}solar-system-credits.txt`}
-            className="rounded-sm transition-colors hover:text-[#d9e8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]"
-          >
-            Image credits
-          </a>
         </p>
       </Container>
     </footer>
