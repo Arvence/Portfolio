@@ -10,6 +10,7 @@ export default function AppLayout() {
   const previousPath = useRef(pathname)
   const mainRef = useRef<HTMLElement>(null)
   const planetVisible = true
+  const wideContent = pathname === '/' || pathname.replace(/\/$/, '') === '/projects/taskforge'
 
   useEffect(() => {
     if (previousPath.current !== pathname) {
@@ -40,7 +41,7 @@ export default function AppLayout() {
           tabIndex={-1}
           className={`flex-1 focus:outline-none ${pathname === '/' ? '' : 'py-10 sm:py-12 lg:py-16'}`}
         >
-          <Container wide={pathname === '/'}>
+          <Container wide={wideContent}>
             <Outlet />
           </Container>
         </main>
