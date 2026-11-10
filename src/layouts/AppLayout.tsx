@@ -10,7 +10,7 @@ export default function AppLayout() {
   const previousPath = useRef(pathname)
   const mainRef = useRef<HTMLElement>(null)
   const planetVisible = true
-  const wideContent = pathname === '/' || pathname.replace(/\/$/, '') === '/projects/taskforge'
+  const wideContent = ['/', '/projects/taskforge', '/projects/flagbit'].includes(pathname.replace(/\/$/, '') || '/')
 
   useEffect(() => {
     if (previousPath.current !== pathname) {
